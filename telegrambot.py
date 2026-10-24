@@ -1,6 +1,15 @@
-
-import os, time, logging, requests
+import os, time, logging, requests, threading
+from flask import Flask
 from groq import Groq
+
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return 'Burmalda alive', 200
+def run_flask():
+    port = int(os.getenv('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -73,7 +82,8 @@ def send_msg(chat_id, text):
         logger.error(f"send err {e}")
 
 def main():
-    logger.info("Бурмалда REQUESTS-ONLY запущена")
+    threading.Thread(target=run_flask, daemon=True).start()
+    logger.info("Бурмалда REQUESTS-ONLY + Flask keepalive запущена")
     offset = 0
     while True:
         try:
